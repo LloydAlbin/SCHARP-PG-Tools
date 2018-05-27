@@ -5,6 +5,42 @@ CREATE SCHEMA IF NOT EXISTS @extschema@;
 
 GRANT USAGE ON SCHEMA @extschema@ TO PUBLIC;
 
+CREATE OR REPLACE FUNCTION @extschema@.to_text(hexval bytea) RETURNS text AS $$
+	SELECT convert_from($1,(SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = current_database()));
+$$ LANGUAGE sql IMMUTABLE RETURNS NULL ON NULL INPUT;
+
+GRANT EXECUTE ON FUNCTION @extschema@.to_text(hexval bytea) TO PUBLIC;
+
+CREATE OR REPLACE FUNCTION @extschema@.to_text(hexval bytea, encoding name) RETURNS text AS $$
+	SELECT convert_from($1, encoding);
+$$ LANGUAGE sql IMMUTABLE RETURNS NULL ON NULL INPUT;
+
+GRANT EXECUTE ON FUNCTION @extschema@.to_text(hexval bytea, encoding name) TO PUBLIC;
+
+CREATE OR REPLACE FUNCTION @extschema@.to_name(hexval bytea) RETURNS name AS $$
+	SELECT convert_from($1,(SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = current_database()));
+$$ LANGUAGE sql IMMUTABLE RETURNS NULL ON NULL INPUT;
+
+GRANT EXECUTE ON FUNCTION @extschema@.to_name(hexval bytea) TO PUBLIC;
+
+CREATE OR REPLACE FUNCTION @extschema@.to_name(hexval bytea, encoding name) RETURNS name AS $$
+	SELECT convert_from($1, encoding);
+$$ LANGUAGE sql IMMUTABLE RETURNS NULL ON NULL INPUT;
+
+GRANT EXECUTE ON FUNCTION @extschema@.to_name(hexval bytea, encoding name) TO PUBLIC;
+
+CREATE OR REPLACE FUNCTION @extschema@.to_varchar(hexval bytea) RETURNS varchar AS $$
+	SELECT convert_from($1,(SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = current_database()));
+$$ LANGUAGE sql IMMUTABLE RETURNS NULL ON NULL INPUT;
+
+GRANT EXECUTE ON FUNCTION @extschema@.to_varchar(hexval bytea) TO PUBLIC;
+
+CREATE OR REPLACE FUNCTION @extschema@.to_varchar(hexval bytea, encoding name) RETURNS varchar AS $$
+	SELECT convert_from($1, encoding);
+$$ LANGUAGE sql IMMUTABLE RETURNS NULL ON NULL INPUT;
+
+GRANT EXECUTE ON FUNCTION @extschema@.to_varchar(hexval bytea, encoding name) TO PUBLIC;
+
 CREATE OR REPLACE FUNCTION @extschema@.to_boolean(hexval bytea) RETURNS boolean AS $$
     SELECT right($1::TEXT,-3)::boolean;
 $$ LANGUAGE sql IMMUTABLE RETURNS NULL ON NULL INPUT;
