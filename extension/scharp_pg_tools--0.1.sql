@@ -148,3 +148,36 @@ RETURNS NULL ON NULL INPUT
 SECURITY INVOKER;
 
 GRANT EXECUTE ON FUNCTION @extschema@.to_numeric (chartoconvert text) TO PUBLIC;
+
+CREATE OR REPLACE FUNCTION @extschema@.update_query_with_parameters (
+  query text,
+  parameter text []
+)
+RETURNS text AS
+$body$
+DECLARE
+  return_query TEXT;
+  array_len INTEGER;
+BEGIN
+    return_query = query;
+    IF return_query IS NULL THEN
+        RETURN NULL;
+    ELSIF parameter IS NULL THEN
+        RETURN return_query;
+    ELSE
+        array_len = array_length(parameter, 1);
+
+        FOR i IN 1..array_len LOOP
+            return_query = regexp_replace(return_query, '\$' || i || '([^0-9]|$)', quote_nullable(parameter[i]) || E'\\1', 'g');
+        END LOOP; 
+
+        RETURN return_query;
+    END IF;
+END;
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER;
+
+GRANT EXECUTE ON FUNCTION @extschema@.update_query_with_parameters (query text, parameter text[]) TO PUBLIC;
